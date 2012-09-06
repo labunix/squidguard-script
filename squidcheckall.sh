@@ -6,7 +6,7 @@ if [ "`id -u`" -ne "0" ];then
   echo "Sorry,Not Permit User!"
   exit 1
 fi
-ALLLOG="/var/log/squidcheckall_`date '+%Y%m%d'`.log"
+ALLLOG="/var/log/squidcheckall_`date '+%Y%m%d'`.log.gz"
 FLAG=0
 
 dpkg -l squidclient | grep ^ii > /dev/null || FLAG=1
@@ -24,10 +24,10 @@ squidclient mgr:menu | grep "public" | awk '{print $1}' | \
     for n in `seq 1 80`;do echo -n "-" ;done
     echo ""
     squidclient mgr:${list}
-  done > "$ALLLOG"
+  done | gzip > "$ALLLOG"
 chmod 400 "$ALLLOG"
 
-echo -n "See Log : line "
-wc -l "$ALLLOG" | sed s/" "/"\n\n"/
+echo "See Log : `zcat ${ALLLOG} | wc -l` lines"
+echo "lv -s ${ALLLOG}"
 unset ALLLOG FLAG
 exit 0
